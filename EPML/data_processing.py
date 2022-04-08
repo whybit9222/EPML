@@ -18,7 +18,12 @@ class DataProcessing:
     input_data = None
     data_filename = ""
     raw_data_path = "./data/raw"
-    output_path = "./data/output"
+    output_path = "./data/processed"
+    
+    ti = None
+    to = None
+    vi = None
+    vo = None
 
     def set_origindata(self, filename):
         self.data_filename = filename
@@ -51,13 +56,27 @@ class DataProcessing:
         normalize[:,3] = ratio_scaling(inputdata[:, 3])
         return normalize
 
+    def write_data(self):
+        former = self.output_path + "/" + self.data_filename
+        np.save(former + "_train_input", self.ti)
+        np.save(former + "_train_output", self.to)
+        np.save(former + "_valid_input", self.vi)
+        np.save(former + "_valid_output", self.vo)
+        print("Write data: success.")
+        pass
+
     def auto_processing(self, percentage=0.7):
         ti, to, vi, vo = self.split_data_randomly(percentage)
         ti = self.normalize_data(ti)
         vi = self.normalize_data(vi)
+        self.ti = ti.copy()
+        self.vi = vi.copy()
+        self.to = to.copy()
+        self.vo = vo.copy()
+        self.write_data()
         return ti, to, vi, vo
 
 
 #dp = DataProcessing("database_clf_large_800T.npy")
 #ti, _, _, _ = dp.auto_processing()
-#print(ti)
+#print(ti) 

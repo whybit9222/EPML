@@ -9,16 +9,16 @@ class ModelGen:
         self.model = None
         pass
 
-    model_path = "./"
+    model_path = "./models"
 
     def initialize_dataset(self, train_in, train_out):
         self.train_in = train_in
         self.train_out = train_out
-        pass
+        return 0
 
     def train_model(self, epochs=20, optimizer='adam', loss='binary_crossentropy', metrics=['acc']):
         self.model.compile(optimizer, loss, metrics)
-        history = self.model.fit(self.train_in, self.train_out, epochs)
+        history = self.model.fit(self.train_in, self.train_out, epochs=epochs)
         return history 
 
     def import_model(self, model):
@@ -30,24 +30,21 @@ class ModelGen:
             [
                 tf.keras.Input(shape=(4,)),
                 RandomFourierFeatures(
-                    features_dim, scale=1, kernel_initializer="laplacian"
+                    output_dim=features_dim, scale=1, kernel_initializer="laplacian"
                 ),
+                tf.keras.layers.Dense(1, activation='sigmoid')
             ]
         )
-        pass
+        return 0
 
     def define_model_ANN(self, layers):
         self.model = tf.keras.Sequential()
-
-        for idx, num in enumerate(layers):
-            if idx==0:
-                self.model.add(tf.keras.layers.Dense(num, input_shape=(4,), activation='relu'))
-            elif idx!=len(layers-1):
-                self.model.add(tf.keras.layers.Dense(num, activation='relu'))
-            else:
-                self.model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
-    pass
+        self.model.add(tf.keras.layers.Dense(layers[0], input_shape=(4,), activation='relu'))
+        for num in layers[1:-1]:
+            self.model.add(tf.keras.layers.Dense(num, activation='relu'))
+        self.model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+        return 0
 
     def save_model(self, filename):
-        self.model.save(filename + ".h5")
-        pass
+        self.model.save(self.model_path + "/" + filename + ".h5")
+        return 0
